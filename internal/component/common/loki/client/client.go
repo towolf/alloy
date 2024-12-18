@@ -60,7 +60,6 @@ type Metrics struct {
 	mutatedBytes                 *prometheus.CounterVec
 	requestDuration              *prometheus.HistogramVec
 	batchRetries                 *prometheus.CounterVec
-	countersWithHost             []*prometheus.CounterVec
 	countersWithHostTenant       []*prometheus.CounterVec
 	countersWithHostTenantReason []*prometheus.CounterVec
 }
@@ -105,12 +104,8 @@ func NewMetrics(reg prometheus.Registerer) *Metrics {
 		Help: "Number of times batches has had to be retried.",
 	}, []string{HostLabel, TenantLabel})
 
-	m.countersWithHost = []*prometheus.CounterVec{
-		m.encodedBytes, m.sentBytes, m.sentEntries,
-	}
-
 	m.countersWithHostTenant = []*prometheus.CounterVec{
-		m.batchRetries,
+		m.batchRetries, m.encodedBytes, m.sentBytes, m.sentEntries,
 	}
 
 	m.countersWithHostTenantReason = []*prometheus.CounterVec{
@@ -209,12 +204,6 @@ func newClient(metrics *Metrics, cfg Config, maxStreams, maxLineSize int, maxLin
 	}
 
 	c.client.Timeout = cfg.Timeout
-
-	// Initialize counters to 0 so the metrics are exported before the first
-	// occurrence of incrementing to avoid missing metrics.
-	for _, counter := range c.metrics.countersWithHost {
-		counter.WithLabelValues(c.cfg.URL.Host).Add(0)
-	}
 
 	c.wg.Add(1)
 	go c.run()
