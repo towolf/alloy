@@ -71,11 +71,11 @@ func NewMetrics(reg prometheus.Registerer) *Metrics {
 	m.encodedBytes = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "loki_write_encoded_bytes_total",
 		Help: "Number of bytes encoded and ready to send.",
-	}, []string{HostLabel})
+	}, []string{HostLabel, TenantLabel})
 	m.sentBytes = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "loki_write_sent_bytes_total",
 		Help: "Number of bytes sent.",
-	}, []string{HostLabel})
+	}, []string{HostLabel, TenantLabel})
 	m.droppedBytes = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "loki_write_dropped_bytes_total",
 		Help: "Number of bytes dropped because failed to be sent to the ingester after all retries.",
@@ -83,7 +83,7 @@ func NewMetrics(reg prometheus.Registerer) *Metrics {
 	m.sentEntries = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "loki_write_sent_entries_total",
 		Help: "Number of log entries sent to the ingester.",
-	}, []string{HostLabel})
+	}, []string{HostLabel, TenantLabel})
 	m.droppedEntries = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "loki_write_dropped_entries_total",
 		Help: "Number of log entries dropped because failed to be sent to the ingester after all retries.",
