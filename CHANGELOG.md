@@ -58,7 +58,7 @@ Main (unreleased)
 
 - Update `prometheus.write.queue` library for performance increases in cpu. (@mattdurham)
 
-- Add `tenant` label to remaining `loki_write_.+` metrics
+- Add `tenant` label to remaining `loki_write_.+` metrics (@towolf)
 
 ### Bugfixes
 
