@@ -459,7 +459,7 @@ func (c *queueClient) sendBatch(ctx context.Context, tenantID string, batch *bat
 		// send uses `timeout` internally, so `context.Background` is good enough.
 		status, err = c.send(ctx, tenantID, buf)
 
-		c.metrics.requestDuration.WithLabelValues(strconv.Itoa(status), c.cfg.URL.Host).Observe(time.Since(start).Seconds())
+		c.metrics.requestDuration.WithLabelValues(strconv.Itoa(status), c.cfg.URL.Host, tenantID).Observe(time.Since(start).Seconds())
 
 		// Immediately drop rate limited batches to avoid HOL blocking for other tenants not experiencing throttling
 		if c.cfg.DropRateLimitedBatches && batchIsRateLimited(status) {

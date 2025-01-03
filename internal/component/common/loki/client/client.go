@@ -98,7 +98,7 @@ func NewMetrics(reg prometheus.Registerer) *Metrics {
 	m.requestDuration = prometheus.NewHistogramVec(prometheus.HistogramOpts{
 		Name: "loki_write_request_duration_seconds",
 		Help: "Duration of send requests.",
-	}, []string{"status_code", HostLabel})
+	}, []string{"status_code", HostLabel, TenantLabel})
 	m.batchRetries = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "loki_write_batch_retries_total",
 		Help: "Number of times batches has had to be retried.",
@@ -346,7 +346,7 @@ func (c *client) sendBatch(tenantID string, batch *batch) {
 		return
 	}
 	bufBytes := float64(len(buf))
-	c.metrics.encodedBytes.WithLabelValues(c.cfg.URL.Host).Add(bufBytes)
+	c.metrics.encodedBytes.WithLabelValues(c.cfg.URL.Host, tenantID).Add(bufBytes)
 
 	backoff := backoff.New(c.ctx, c.cfg.BackoffConfig)
 	var status int
@@ -355,7 +355,7 @@ func (c *client) sendBatch(tenantID string, batch *batch) {
 		// send uses `timeout` internally, so `context.Background` is good enough.
 		status, err = c.send(context.Background(), tenantID, buf)
 
-		c.metrics.requestDuration.WithLabelValues(strconv.Itoa(status), c.cfg.URL.Host).Observe(time.Since(start).Seconds())
+		c.metrics.requestDuration.WithLabelValues(strconv.Itoa(status), c.cfg.URL.Host, tenantID).Observe(time.Since(start).Seconds())
 
 		// Immediately drop rate limited batches to avoid HOL blocking for other tenants not experiencing throttling
 		if c.cfg.DropRateLimitedBatches && batchIsRateLimited(status) {
@@ -366,8 +366,8 @@ func (c *client) sendBatch(tenantID string, batch *batch) {
 		}
 
 		if err == nil {
-			c.metrics.sentBytes.WithLabelValues(c.cfg.URL.Host).Add(bufBytes)
-			c.metrics.sentEntries.WithLabelValues(c.cfg.URL.Host).Add(float64(entriesCount))
+			c.metrics.sentBytes.WithLabelValues(c.cfg.URL.Host, tenantID).Add(bufBytes)
+			c.metrics.sentEntries.WithLabelValues(c.cfg.URL.Host, tenantID).Add(float64(entriesCount))
 
 			return
 		}
