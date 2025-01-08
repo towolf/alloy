@@ -451,7 +451,9 @@ func TestClient_Handle(t *testing.T) {
 			expectedMetrics: `
                               # HELP loki_write_sent_entries_total Number of log entries sent to the ingester.
                               # TYPE loki_write_sent_entries_total counter
-                              loki_write_sent_entries_total{host="__HOST__",tenant=""} 4.0
+                              loki_write_sent_entries_total{host="__HOST__",tenant="tenant-1"} 2.0
+                              loki_write_sent_entries_total{host="__HOST__",tenant="tenant-2"} 1.0
+                              loki_write_sent_entries_total{host="__HOST__",tenant="tenant-default"} 1.0
                               # HELP loki_write_dropped_entries_total Number of log entries dropped because failed to be sent to the ingester after all retries.
                               # TYPE loki_write_dropped_entries_total counter
                               loki_write_dropped_entries_total{host="__HOST__",reason="ingester_error",tenant="tenant-1"} 0
@@ -604,7 +606,7 @@ func TestClient_StopNow(t *testing.T) {
 			expectedMetrics: `
                               # HELP loki_write_sent_entries_total Number of log entries sent to the ingester.
                               # TYPE loki_write_sent_entries_total counter
-                              loki_write_sent_entries_total{host="__HOST__"} 3.0
+                              loki_write_sent_entries_total{host="__HOST__",tenant=""} 3.0
                               # HELP loki_write_dropped_entries_total Number of log entries dropped because failed to be sent to the ingester after all retries.
                               # TYPE loki_write_dropped_entries_total counter
                               loki_write_dropped_entries_total{host="__HOST__",reason="ingester_error",tenant=""} 0
@@ -635,7 +637,7 @@ func TestClient_StopNow(t *testing.T) {
                               loki_write_dropped_entries_total{host="__HOST__",reason="stream_limited",tenant=""} 0
                               # HELP loki_write_sent_entries_total Number of log entries sent to the ingester.
                               # TYPE loki_write_sent_entries_total counter
-                              loki_write_sent_entries_total{host="__HOST__"} 0
+                              loki_write_sent_entries_total{host="__HOST__", tenant=""} 0
                        `,
 		},
 	}
